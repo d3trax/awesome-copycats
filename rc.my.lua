@@ -16,6 +16,7 @@ local naughty   = require("naughty")
 local drop      = require("scratchdrop")
 local lain      = require("lain")
 local eminent   = require("eminent")
+local vicious = require("vicious")
 local obvious = require("obvious")
 -- local blingbling = require("blingbling")
 -- }}}
@@ -188,6 +189,24 @@ mpdwidget = lain.widgets.mpd({
     end
 })
 
+netwidget = wibox.widget.textbox()
+vicious.register(netwidget, vicious.widgets.net, function(widgets,args)
+        local interface = ""
+        if args["{p5p1 carrier}"] == 1 then
+                interface = "p5p1"
+        elseif args["{wlo1 carrier}"] == 1 then
+                interface = "wlo1"
+        elseif args["{eth0 carrier}"] == 1 then
+                interface = "eth0"
+        elseif args["{wlan1 carrier}"] == 1 then
+                interface = "wlan1"
+        else
+                return "?"
+        end
+        return '<span font="Inconsolata 11" color="#AAAAAA">' ..args["{"..interface.." down_kb}"]..'kbps'..'</span>' end, 10)
+netwidget:buttons(awful.util.table.join(awful.button({ }, 1, function() awful.util.spawn_with_shell('wicd-client -n') end)))
+
+
 -- Battery
 baticon = wibox.widget.imagebox(beautiful.bat)
 batbar = awful.widget.progressbar()
@@ -350,7 +369,7 @@ for s = 1, screen.count() do
     mytasklist[s] = awful.widget.tasklist(s, awful.widget.tasklist.filter.currenttags, mytasklist.buttons)
 
     -- Create the wibox
-    mywibox[s] = awful.wibox({ position = "top", screen = s, height = 13 })
+    mywibox[s] = awful.wibox({ position = "top", screen = s, height = 18 })
 
     -- Widgets that are aligned to the left
     local left_layout = wibox.layout.fixed.horizontal()
@@ -376,6 +395,10 @@ for s = 1, screen.count() do
     right_layout:add(bar_spr)
     right_layout:add(volicon)
     right_layout:add(volumewidget)
+    right_layout:add(bar_spr)
+    right_layout:add(netwidget)
+    right_layout:add(bar_spr)
+    right_layout:add(obvious.keymap_switch())
     right_layout:add(bar_spr)
     right_layout:add(mytextclock)
 
@@ -831,8 +854,3 @@ run_once("skype");
 run_once("spopd");
 run_once("thunderbird");
 run_once("freetalk");
-awful.util.spawn_with_shell("workmail");
-awful.util.spawn_with_shell("personalmail");
-
--- {{ Turns off the terminal bell }} --
-awful.util.spawn_with_shell("/usr/bin/xset b off")
