@@ -85,6 +85,7 @@ lain.layout.centerfair.nmaster = 3
 lain.layout.centerfair.ncol    = 1
 
 local layouts = {
+    awful.layout.suit.max,
     awful.layout.suit.floating,
     awful.layout.suit.fair,
     awful.layout.suit.tile,
@@ -969,12 +970,15 @@ for s = 1, screen.count() do screen[s]:connect_signal("arrange", function ()
             for _, c in pairs(clients) do -- Floaters always have borders
                 if awful.client.floating.get(c) or layout == "floating" then
                     c.border_width = beautiful.border_width
+                    awful.titlebar(c,{size=16})
 
                 -- No borders with only one visible client
                 elseif #clients == 1 or layout == "max" then
                     clients[1].border_width = 0
+                    awful.titlebar(c,{size=0})
                 else
                     c.border_width = beautiful.border_width
+                    awful.titlebar(c,{size=16})
                 end
             end
         end
